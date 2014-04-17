@@ -1,8 +1,8 @@
 command! CtrlPDbTables cal ctrlp#init(ctrlp#dbtables#id())
 " nmap <Leader>dt  :call dbtables#describe('')<CR>
 " nmap <Leader>dtt :CtrlPDbTables<CR>
-"
-" FIXME: seperate out configuration
+
+" TODO: Add select top X rows as a task
 
 " FIXME: duplicate detection broken. Apply on a per table level
 " CREDIT: Largly nicked from vimpipe!
@@ -30,16 +30,18 @@ function! dbtables#describe(table)
     call setbufvar(describebuffer, "&bufhidden", "nowrap")
     execute ":setlocal nowrap"
 
-    let sql = "SELECT column_name, column_type, column_comment FROM information_schema.columns WHERE table_name = \"" . table . "\""
-    call dbtables#runsql(sql)
+    let sql = "SELECT DISTINCT column_name, column_type, column_comment FROM information_schema.columns WHERE table_name = \"" . table . "\""
+    call dbtables#runSqlInBuffer(sql)
 
     let sql = "SELECT * FROM `" . table . "` LIMIT 5;"
-    call dbtables#runsql(sql)
+    call dbtables#runSqlInBuffer(sql)
 
     let sql = "SHOW INDEXES IN `" . table . "`;"
-    call dbtables#runsql(sql)
+    call dbtables#runSqlInBuffer(sql)
+
+    execute "normal gg"
 endfunction
 
-function! dbtables#runsql(sql)
+function! dbtables#runSqlInBuffer(sql)
     execute ":sil r!" . g:dbtables_dbcommand . " --table -e '" . a:sql . ";'"
 endfunction
