@@ -10,6 +10,7 @@ command! CtrlPDbTables cal ctrlp#init(ctrlp#dbtables#id())
 " FIXME: reuse buffer if open
 " FIXME: error handling
 " FIXME split this into describe / describeword
+" TODO:  
 function! dbtables#describe(table)
     " use the word at the cursor if no parameter passed
     if len(a:table) == 0
@@ -41,6 +42,12 @@ function! dbtables#describe(table)
 
     execute "normal gg"
 endfunction
+
+function! dbtables#dumpInserts(table)
+    let command = g:dbtables_mysqldump " --no-create-info --skip-opt --compact --tables " . a:table
+    execute ":sil r!" . command
+endfunction
+
 
 function! dbtables#runSqlInBuffer(sql)
     execute ":sil r!" . g:dbtables_dbcommand . " --table -e '" . a:sql . ";'"
