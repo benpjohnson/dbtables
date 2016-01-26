@@ -48,7 +48,18 @@ function! dbtables#dumpInserts(table)
     execute ":sil r!" . command
 endfunction
 
-
 function! dbtables#runSqlInBuffer(sql)
     execute ":sil r!" . g:dbtables_dbcommand . " --table -e '" . a:sql . ";'"
 endfunction
+
+" FIXME: Use this for ctrlp too
+function! dbtables#list()
+  let s = system(g:dbtables_dbcommand . " --batch -e 'show tables'")
+  return split(s, "\n")[1:]
+endfunction
+
+command! FZFTables call fzf#run({
+    \  'source':  dbtables#list(),
+    \  'sink':    function('dbtables#describe'),
+    \  'options': '-m -x +s',
+    \  'down':    '40%' })
